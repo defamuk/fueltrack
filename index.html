@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#0f172a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Project Healthy Family">
+<meta name="apple-mobile-web-app-title" content="FuelTrack">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Project Healthy Family</title>
+<title>FuelTrack</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -435,6 +435,13 @@ function renderProfile(m) {
     <div class="tips">
       <div class="tips-title">Tips</div>
       BMR uses the Mifflin-St Jeor equation. As you lose weight, update your start weight to recalculate your target. Aim for 0.7–1g protein per lb of goal weight (154–220g/day) to preserve muscle mass with strength training. Exercise calories are a bonus deficit — don't eat them back.
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">Export Data</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Download your tracking data as CSV files you can open in Excel, Google Sheets, etc.</div>
+      <button class="submit-btn" onclick="exportFoodLog()" style="margin-bottom:8px;background:rgba(99,200,170,0.15);color:var(--accent);border:1px solid rgba(99,200,170,0.3)">📋 Export Food Log</button>
+      <button class="submit-btn" onclick="exportDailyData()" style="margin-bottom:8px;background:rgba(129,140,248,0.15);color:var(--blue);border:1px solid rgba(129,140,248,0.3)">📊 Export Daily Summary</button>
+      <button class="submit-btn" onclick="exportAll()" style="background:var(--accent);color:#0f172a">⬇️ Export All Data</button>
     </div>`;
 }
 
@@ -559,6 +566,44 @@ function updateProfile(field, val) {
 }
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function downloadCSV(filename, csvContent) {
+  const blob = new Blob([csvContent], {type:'text/csv;charset=utf-8;'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function exportFoodLog() {
+  const rows = [['Date','Meal','Food','Calories','Serving','Protein (g)','Carbs (g)','Fat (g)']];
+  Object.entries(state.foodLog).sort(([a],[b])=>a.localeCompare(b)).forEach(([date, items]) => {
+    items.forEach(i => {
+      rows.push([date, i.meal||'', i.name||'', i.calories||'', i.serving||'', i.protein||'', i.carbs||'', i.fat||'']);
+    });
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  downloadCSV(`fueltrack-food-log-${todayStr()}.csv`, csv);
+}
+
+function exportDailyData() {
+  const m = calcMetrics(state.profile);
+  const rows = [['Date','Calories','Protein (g)','Carbs (g)','Fat (g)','Target (cal)','Weight (lbs)','Water (oz)','Alcohol (drinks)','Notes']];
+  const allDates = [...new Set([...Object.keys(state.foodLog),...Object.keys(state.dailyData)])].sort();
+  allDates.forEach(date => {
+    const t = getDayTotals(date);
+    const dd = state.dailyData[date] || {};
+    rows.push([date, t.calories, t.protein, t.carbs, t.fat, m.calorieTarget, dd.weight||'', dd.water||'', dd.alcohol||'', dd.notes||'']);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  downloadCSV(`fueltrack-daily-summary-${todayStr()}.csv`, csv);
+}
+
+function exportAll() {
+  exportFoodLog();
+  setTimeout(() => exportDailyData(), 300);
+}
 
 function bindEvents() {}
 

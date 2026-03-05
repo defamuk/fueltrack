@@ -1,6 +1,6 @@
 {
-  "name": "Project Healthy Family - Weight Loss Tracker",
-  "short_name": "PHF",
+  "name": "FuelTrack - Weight Loss Tracker",
+  "short_name": "FuelTrack",
   "description": "Track calories, macros, water, and weight loss progress",
   "start_url": ".",
   "display": "standalone",
