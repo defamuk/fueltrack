@@ -2,7 +2,7 @@
   "name": "FuelTrack - Weight Loss Tracker",
   "short_name": "FuelTrack",
   "description": "Track calories, macros, water, and weight loss progress",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
