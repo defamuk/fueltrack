@@ -33,10 +33,10 @@ button{font-family:inherit;cursor:pointer}
 .subtitle{font-size:11px;color:var(--dim);letter-spacing:0.1em;font-weight:500}
 
 .tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:linear-gradient(135deg,#0f172a,#1e293b);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0 max(8px,env(safe-area-inset-bottom));backdrop-filter:blur(20px)}
-.tab-btn{background:transparent;border:1px solid transparent;border-radius:12px;padding:6px 12px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;transition:all 0.2s}
+.tab-btn{background:transparent;border:1px solid transparent;border-radius:12px;padding:6px 12px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:48px;transition:all 0.2s}
 .tab-btn.active{background:rgba(99,200,170,0.15);border-color:rgba(99,200,170,0.3)}
 .tab-btn .icon{font-size:18px}
-.tab-btn .label{font-size:10px;font-weight:600;letter-spacing:0.03em;color:var(--muted)}
+.tab-btn .label{font-size:9px;font-weight:600;letter-spacing:0.03em;color:var(--muted)}
 .tab-btn.active .label{color:var(--accent)}
 
 .nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -110,6 +110,45 @@ button{font-family:inherit;cursor:pointer}
 .tips-title{font-weight:600;color:var(--accent);margin-bottom:6px}
 
 .hidden{display:none}
+
+/* ─── Autocomplete ─── */
+.ac-wrap{position:relative}
+.ac-list{position:absolute;top:100%;left:0;right:0;z-index:50;max-height:220px;overflow-y:auto;background:#1e293b;border:1px solid var(--border);border-radius:0 0 10px 10px;display:none}
+.ac-list.show{display:block}
+.ac-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid rgba(99,200,170,0.06);transition:background 0.15s}
+.ac-item:hover,.ac-item.selected{background:rgba(99,200,170,0.1)}
+.ac-item-name{font-size:13px;font-weight:500;color:var(--text)}
+.ac-item-meta{font-size:11px;color:var(--dim);margin-top:2px}
+.ac-item-cal{float:right;font-size:13px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace}
+.ac-item-source{font-size:9px;padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:600;vertical-align:middle}
+.ac-item-source.db{background:rgba(99,200,170,0.15);color:var(--accent)}
+.ac-item-source.custom{background:rgba(129,140,248,0.15);color:var(--blue)}
+.ac-item-source.api{background:rgba(245,158,11,0.15);color:var(--orange)}
+.ac-searching{padding:12px;text-align:center;color:var(--dim);font-size:12px}
+.ac-hint{padding:8px 12px;font-size:11px;color:var(--dim);border-bottom:1px solid rgba(99,200,170,0.06);background:rgba(15,23,42,0.3)}
+
+/* Foods tab */
+.food-db-item{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(99,200,170,0.06)}
+.food-db-item:last-child{border-bottom:none}
+.food-db-name{font-size:13px;font-weight:500}
+.food-db-detail{font-size:11px;color:var(--dim);margin-top:2px}
+.food-db-actions{display:flex;gap:6px;align-items:center}
+.edit-btn{background:rgba(129,140,248,0.1);border:none;border-radius:6px;width:28px;height:28px;color:var(--blue);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.del-btn{background:rgba(239,68,68,0.1);border:none;border-radius:6px;width:28px;height:28px;color:var(--red);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.food-count{font-size:11px;color:var(--dim);text-align:right;margin-bottom:8px}
+.tab-pills{display:flex;gap:6px;margin-bottom:14px}
+.tab-pill{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.tab-pill.active{background:rgba(99,200,170,0.15);border-color:rgba(99,200,170,0.3);color:var(--accent)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:#1e293b;border-radius:16px;padding:20px;width:100%;max-width:400px;border:1px solid var(--border);max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:14px;color:var(--accent)}
+.modal .form-row{margin-bottom:10px}
+.modal-btns{display:flex;gap:8px;margin-top:14px}
+.modal-btns button{flex:1;padding:10px;border-radius:10px;font-weight:700;font-size:14px;border:none}
+.modal-btns .cancel-btn{background:rgba(239,68,68,0.15);color:var(--red)}
+.modal-btns .save-btn{background:var(--accent);color:#0f172a}
 </style>
 </head>
 <body>
@@ -124,13 +163,244 @@ button{font-family:inherit;cursor:pointer}
 <div class="tab-bar" id="tabBar">
   <button class="tab-btn active" data-tab="log"><span class="icon">🍽️</span><span class="label">Log</span></button>
   <button class="tab-btn" data-tab="daily"><span class="icon">📊</span><span class="label">Today</span></button>
+  <button class="tab-btn" data-tab="foods"><span class="icon">🔍</span><span class="label">Foods</span></button>
   <button class="tab-btn" data-tab="weekly"><span class="icon">📅</span><span class="label">Weekly</span></button>
   <button class="tab-btn" data-tab="monthly"><span class="icon">📈</span><span class="label">Monthly</span></button>
   <button class="tab-btn" data-tab="profile"><span class="icon">⚙️</span><span class="label">Profile</span></button>
 </div>
 
+<div id="modalRoot"></div>
+
 <script>
-// ─── State ───
+// ═══════════════════════════════════════════════════════════════
+// BUILT-IN UK FOOD DATABASE
+// All values per 100g. servingG = typical serving weight in grams.
+// ═══════════════════════════════════════════════════════════════
+const FOOD_DB = [
+  // ── Proteins ──
+  {name:"Chicken Breast, grilled",cal:148,protein:32,carbs:0,fat:2.6,serving:"1 breast (130g)",servingG:130,cat:"Protein"},
+  {name:"Chicken Thigh, grilled, skin removed",cal:177,protein:25,carbs:0,fat:8.5,serving:"1 thigh (85g)",servingG:85,cat:"Protein"},
+  {name:"Chicken Drumstick, roasted",cal:172,protein:28,carbs:0,fat:6.5,serving:"1 drumstick (65g)",servingG:65,cat:"Protein"},
+  {name:"Turkey Breast, roasted",cal:153,protein:34,carbs:0,fat:1.5,serving:"1 slice (30g)",servingG:30,cat:"Protein"},
+  {name:"Beef Mince, lean 5%, cooked",cal:174,protein:31,carbs:0,fat:5.5,serving:"100g",servingG:100,cat:"Protein"},
+  {name:"Beef Mince, 20% fat, cooked",cal:254,protein:26,carbs:0,fat:17,serving:"100g",servingG:100,cat:"Protein"},
+  {name:"Beef Steak, sirloin, grilled",cal:163,protein:28,carbs:0,fat:5.6,serving:"1 steak (200g)",servingG:200,cat:"Protein"},
+  {name:"Beef Steak, rump, grilled",cal:155,protein:29,carbs:0,fat:4.3,serving:"1 steak (200g)",servingG:200,cat:"Protein"},
+  {name:"Lamb Chop, grilled",cal:206,protein:24,carbs:0,fat:12,serving:"1 chop (90g)",servingG:90,cat:"Protein"},
+  {name:"Lamb Mince, cooked",cal:235,protein:24,carbs:0,fat:15,serving:"100g",servingG:100,cat:"Protein"},
+  {name:"Pork Chop, grilled",cal:184,protein:31,carbs:0,fat:6.5,serving:"1 chop (150g)",servingG:150,cat:"Protein"},
+  {name:"Pork Loin, roasted",cal:182,protein:33,carbs:0,fat:5.5,serving:"100g",servingG:100,cat:"Protein"},
+  {name:"Bacon, back, grilled",cal:215,protein:25,carbs:0,fat:12,serving:"2 rashers (60g)",servingG:60,cat:"Protein"},
+  {name:"Bacon, streaky, grilled",cal:276,protein:22,carbs:0,fat:21,serving:"2 rashers (40g)",servingG:40,cat:"Protein"},
+  {name:"Sausage, pork, grilled",cal:271,protein:14,carbs:8,fat:20,serving:"1 sausage (50g)",servingG:50,cat:"Protein"},
+  {name:"Salmon, fillet, baked",cal:208,protein:20,carbs:0,fat:13,serving:"1 fillet (125g)",servingG:125,cat:"Protein"},
+  {name:"Cod, fillet, baked",cal:96,protein:21,carbs:0,fat:1,serving:"1 fillet (120g)",servingG:120,cat:"Protein"},
+  {name:"Tuna, tinned in spring water",cal:99,protein:24,carbs:0,fat:0.5,serving:"1 tin drained (145g)",servingG:145,cat:"Protein"},
+  {name:"Tuna, tinned in oil, drained",cal:189,protein:26,carbs:0,fat:9,serving:"1 tin drained (145g)",servingG:145,cat:"Protein"},
+  {name:"Prawns, cooked",cal:70,protein:15,carbs:0,fat:0.6,serving:"100g",servingG:100,cat:"Protein"},
+  {name:"Haddock, fillet, baked",cal:89,protein:21,carbs:0,fat:0.6,serving:"1 fillet (120g)",servingG:120,cat:"Protein"},
+  {name:"Fish Fingers, grilled (Birds Eye)",cal:177,protein:12,carbs:17,fat:7,serving:"4 fingers (112g)",servingG:112,cat:"Protein"},
+  {name:"Tofu, firm",cal:73,protein:8,carbs:0.7,fat:4.2,serving:"100g",servingG:100,cat:"Protein"},
+  {name:"Quorn Mince",cal:90,protein:14,carbs:2,fat:2.5,serving:"100g",servingG:100,cat:"Protein"},
+  {name:"Egg, boiled",cal:131,protein:13,carbs:0,fat:9,serving:"1 large (60g)",servingG:60,cat:"Protein"},
+  {name:"Egg, fried",cal:179,protein:13,carbs:0,fat:14,serving:"1 large (60g)",servingG:60,cat:"Protein"},
+  {name:"Egg, scrambled with milk",cal:148,protein:11,carbs:1,fat:11,serving:"2 eggs (150g)",servingG:150,cat:"Protein"},
+  {name:"Egg, poached",cal:131,protein:13,carbs:0,fat:9,serving:"1 large (60g)",servingG:60,cat:"Protein"},
+
+  // ── Dairy ──
+  {name:"Milk, whole",cal:64,protein:3.3,carbs:4.7,fat:3.6,serving:"200ml glass",servingG:200,cat:"Dairy"},
+  {name:"Milk, semi-skimmed",cal:46,protein:3.4,carbs:4.8,fat:1.7,serving:"200ml glass",servingG:200,cat:"Dairy"},
+  {name:"Milk, skimmed",cal:34,protein:3.4,carbs:5,fat:0.1,serving:"200ml glass",servingG:200,cat:"Dairy"},
+  {name:"Oat Milk (Oatly Barista)",cal:59,protein:1,carbs:6.5,fat:3,serving:"200ml",servingG:200,cat:"Dairy"},
+  {name:"Greek Yoghurt, full fat",cal:97,protein:9,carbs:3.6,fat:5,serving:"1 pot (170g)",servingG:170,cat:"Dairy"},
+  {name:"Greek Yoghurt, 0% fat (FAGE)",cal:54,protein:10,carbs:3,fat:0,serving:"1 pot (170g)",servingG:170,cat:"Dairy"},
+  {name:"Natural Yoghurt, low fat",cal:56,protein:4.8,carbs:7.4,fat:0.8,serving:"1 pot (150g)",servingG:150,cat:"Dairy"},
+  {name:"Cheddar Cheese",cal:416,protein:25,carbs:0.1,fat:35,serving:"30g slice",servingG:30,cat:"Dairy"},
+  {name:"Cheddar Cheese, reduced fat",cal:261,protein:32,carbs:0.1,fat:15,serving:"30g slice",servingG:30,cat:"Dairy"},
+  {name:"Mozzarella",cal:280,protein:21,carbs:0.7,fat:22,serving:"1 ball (125g)",servingG:125,cat:"Dairy"},
+  {name:"Cottage Cheese, low fat",cal:72,protein:11,carbs:3.4,fat:1.4,serving:"100g",servingG:100,cat:"Dairy"},
+  {name:"Cream Cheese (Philadelphia)",cal:240,protein:5.4,carbs:4,fat:23,serving:"30g",servingG:30,cat:"Dairy"},
+  {name:"Butter",cal:735,protein:0.5,carbs:0.7,fat:81,serving:"10g pat",servingG:10,cat:"Dairy"},
+  {name:"Skyr (Arla)",cal:63,protein:11,carbs:4,fat:0.2,serving:"150g pot",servingG:150,cat:"Dairy"},
+
+  // ── Carbs & Grains ──
+  {name:"White Rice, cooked",cal:131,protein:2.6,carbs:28,fat:0.3,serving:"150g portion",servingG:150,cat:"Carbs"},
+  {name:"Brown Rice, cooked",cal:123,protein:2.7,carbs:26,fat:1,serving:"150g portion",servingG:150,cat:"Carbs"},
+  {name:"Basmati Rice, cooked",cal:127,protein:3,carbs:27,fat:0.4,serving:"150g portion",servingG:150,cat:"Carbs"},
+  {name:"Pasta, white, cooked",cal:131,protein:5,carbs:26,fat:0.7,serving:"180g portion",servingG:180,cat:"Carbs"},
+  {name:"Pasta, wholewheat, cooked",cal:124,protein:5.3,carbs:23,fat:1,serving:"180g portion",servingG:180,cat:"Carbs"},
+  {name:"Bread, white, sliced",cal:245,protein:8,carbs:47,fat:2,serving:"1 slice (38g)",servingG:38,cat:"Carbs"},
+  {name:"Bread, wholemeal, sliced",cal:224,protein:10,carbs:39,fat:2.5,serving:"1 slice (38g)",servingG:38,cat:"Carbs"},
+  {name:"Bread, sourdough",cal:240,protein:8,carbs:46,fat:1.5,serving:"1 slice (50g)",servingG:50,cat:"Carbs"},
+  {name:"Pitta Bread, white",cal:262,protein:9,carbs:52,fat:1.2,serving:"1 pitta (60g)",servingG:60,cat:"Carbs"},
+  {name:"Naan Bread",cal:290,protein:8,carbs:48,fat:7,serving:"1 naan (130g)",servingG:130,cat:"Carbs"},
+  {name:"Wraps, flour tortilla",cal:306,protein:8,carbs:50,fat:8,serving:"1 wrap (62g)",servingG:62,cat:"Carbs"},
+  {name:"Bagel, plain",cal:257,protein:10,carbs:50,fat:1.3,serving:"1 bagel (90g)",servingG:90,cat:"Carbs"},
+  {name:"Crumpet",cal:182,protein:6,carbs:36,fat:0.8,serving:"1 crumpet (55g)",servingG:55,cat:"Carbs"},
+  {name:"English Muffin",cal:225,protein:8,carbs:44,fat:1.5,serving:"1 muffin (57g)",servingG:57,cat:"Carbs"},
+  {name:"Oats, rolled, dry",cal:367,protein:14,carbs:60,fat:7,serving:"40g portion",servingG:40,cat:"Carbs"},
+  {name:"Porridge, made with water",cal:46,protein:1.6,carbs:8,fat:1,serving:"250g bowl",servingG:250,cat:"Carbs"},
+  {name:"Porridge, made with semi-skimmed milk",cal:76,protein:3.6,carbs:11,fat:2,serving:"300g bowl",servingG:300,cat:"Carbs"},
+  {name:"Couscous, cooked",cal:112,protein:3.8,carbs:23,fat:0.2,serving:"150g portion",servingG:150,cat:"Carbs"},
+  {name:"Quinoa, cooked",cal:120,protein:4.4,carbs:21,fat:1.9,serving:"150g portion",servingG:150,cat:"Carbs"},
+  {name:"Potato, boiled",cal:72,protein:1.8,carbs:17,fat:0.1,serving:"1 medium (175g)",servingG:175,cat:"Carbs"},
+  {name:"Potato, baked, flesh only",cal:93,protein:2.5,carbs:21,fat:0.1,serving:"1 medium (180g)",servingG:180,cat:"Carbs"},
+  {name:"Potato, mashed with butter",cal:104,protein:1.8,carbs:15,fat:4.3,serving:"200g",servingG:200,cat:"Carbs"},
+  {name:"Chips, oven baked",cal:149,protein:2.5,carbs:24,fat:4.6,serving:"165g portion",servingG:165,cat:"Carbs"},
+  {name:"Chips, deep fried",cal:239,protein:3.2,carbs:30,fat:12,serving:"165g portion",servingG:165,cat:"Carbs"},
+  {name:"Sweet Potato, baked",cal:90,protein:2,carbs:21,fat:0.1,serving:"1 medium (200g)",servingG:200,cat:"Carbs"},
+  {name:"Weetabix",cal:362,protein:11,carbs:68,fat:2,serving:"2 biscuits (38g)",servingG:38,cat:"Carbs"},
+  {name:"Cornflakes (Kellogg's)",cal:378,protein:7,carbs:84,fat:0.9,serving:"30g portion",servingG:30,cat:"Carbs"},
+  {name:"Granola",cal:450,protein:10,carbs:58,fat:19,serving:"50g portion",servingG:50,cat:"Carbs"},
+  {name:"Bran Flakes",cal:333,protein:10,carbs:67,fat:2,serving:"40g portion",servingG:40,cat:"Carbs"},
+
+  // ── Fruit ──
+  {name:"Apple",cal:52,protein:0.3,carbs:14,fat:0.2,serving:"1 medium (182g)",servingG:182,cat:"Fruit"},
+  {name:"Banana",cal:89,protein:1.1,carbs:23,fat:0.3,serving:"1 medium (120g)",servingG:120,cat:"Fruit"},
+  {name:"Orange",cal:43,protein:1,carbs:9,fat:0.1,serving:"1 medium (130g)",servingG:130,cat:"Fruit"},
+  {name:"Strawberries",cal:33,protein:0.7,carbs:8,fat:0.3,serving:"80g portion",servingG:80,cat:"Fruit"},
+  {name:"Blueberries",cal:57,protein:0.7,carbs:14,fat:0.3,serving:"80g portion",servingG:80,cat:"Fruit"},
+  {name:"Raspberries",cal:52,protein:1.2,carbs:12,fat:0.7,serving:"80g portion",servingG:80,cat:"Fruit"},
+  {name:"Grapes",cal:67,protein:0.6,carbs:17,fat:0.4,serving:"80g portion",servingG:80,cat:"Fruit"},
+  {name:"Pear",cal:57,protein:0.4,carbs:15,fat:0.1,serving:"1 medium (170g)",servingG:170,cat:"Fruit"},
+  {name:"Mango",cal:60,protein:0.8,carbs:15,fat:0.4,serving:"80g portion",servingG:80,cat:"Fruit"},
+  {name:"Pineapple",cal:50,protein:0.5,carbs:13,fat:0.1,serving:"80g portion",servingG:80,cat:"Fruit"},
+  {name:"Watermelon",cal:30,protein:0.6,carbs:8,fat:0.2,serving:"200g slice",servingG:200,cat:"Fruit"},
+  {name:"Avocado",cal:160,protein:2,carbs:8.5,fat:15,serving:"half (80g)",servingG:80,cat:"Fruit"},
+  {name:"Satsuma",cal:35,protein:0.9,carbs:9,fat:0.1,serving:"1 satsuma (70g)",servingG:70,cat:"Fruit"},
+  {name:"Kiwi",cal:61,protein:1.1,carbs:15,fat:0.5,serving:"1 kiwi (75g)",servingG:75,cat:"Fruit"},
+  {name:"Medjool Dates",cal:277,protein:1.8,carbs:75,fat:0.2,serving:"2 dates (48g)",servingG:48,cat:"Fruit"},
+  {name:"Raisins",cal:299,protein:3.1,carbs:79,fat:0.5,serving:"30g portion",servingG:30,cat:"Fruit"},
+
+  // ── Vegetables ──
+  {name:"Broccoli, boiled",cal:34,protein:3.6,carbs:3.6,fat:0.4,serving:"80g portion",servingG:80,cat:"Veg"},
+  {name:"Carrots, boiled",cal:24,protein:0.6,carbs:5,fat:0.3,serving:"80g portion",servingG:80,cat:"Veg"},
+  {name:"Peas, garden, boiled",cal:79,protein:6,carbs:10,fat:0.9,serving:"80g portion",servingG:80,cat:"Veg"},
+  {name:"Sweetcorn, tinned",cal:79,protein:2.5,carbs:15,fat:1,serving:"80g portion",servingG:80,cat:"Veg"},
+  {name:"Green Beans, boiled",cal:25,protein:1.8,carbs:4,fat:0.1,serving:"80g portion",servingG:80,cat:"Veg"},
+  {name:"Spinach, raw",cal:23,protein:2.9,carbs:3.6,fat:0.4,serving:"30g handful",servingG:30,cat:"Veg"},
+  {name:"Tomato",cal:18,protein:0.9,carbs:3.9,fat:0.2,serving:"1 medium (125g)",servingG:125,cat:"Veg"},
+  {name:"Cucumber",cal:15,protein:0.7,carbs:3.6,fat:0.1,serving:"5cm piece (60g)",servingG:60,cat:"Veg"},
+  {name:"Lettuce, mixed leaves",cal:14,protein:1.3,carbs:2.2,fat:0.2,serving:"30g handful",servingG:30,cat:"Veg"},
+  {name:"Peppers, mixed, raw",cal:26,protein:1,carbs:6,fat:0.2,serving:"half (80g)",servingG:80,cat:"Veg"},
+  {name:"Onion, raw",cal:36,protein:1.2,carbs:8,fat:0.1,serving:"1 medium (150g)",servingG:150,cat:"Veg"},
+  {name:"Mushrooms, raw",cal:13,protein:1.8,carbs:0.4,fat:0.5,serving:"80g portion",servingG:80,cat:"Veg"},
+  {name:"Courgette",cal:17,protein:1.2,carbs:3.1,fat:0.3,serving:"half (100g)",servingG:100,cat:"Veg"},
+  {name:"Aubergine",cal:15,protein:1,carbs:2.2,fat:0.2,serving:"half (130g)",servingG:130,cat:"Veg"},
+  {name:"Butternut Squash",cal:45,protein:1,carbs:12,fat:0.1,serving:"150g portion",servingG:150,cat:"Veg"},
+  {name:"Baked Beans (Heinz)",cal:81,protein:4.7,carbs:13,fat:0.2,serving:"half tin (200g)",servingG:200,cat:"Veg"},
+  {name:"Chickpeas, tinned",cal:119,protein:7,carbs:16,fat:2.6,serving:"half tin (120g)",servingG:120,cat:"Veg"},
+  {name:"Lentils, red, cooked",cal:100,protein:7.6,carbs:17,fat:0.4,serving:"150g portion",servingG:150,cat:"Veg"},
+  {name:"Kidney Beans, tinned",cal:100,protein:6.9,carbs:14,fat:0.5,serving:"half tin (120g)",servingG:120,cat:"Veg"},
+  {name:"Edamame Beans",cal:122,protein:11,carbs:8.9,fat:5,serving:"80g portion",servingG:80,cat:"Veg"},
+
+  // ── Fats, Nuts, Seeds ──
+  {name:"Olive Oil",cal:884,protein:0,carbs:0,fat:100,serving:"1 tbsp (14ml)",servingG:14,cat:"Fats"},
+  {name:"Almonds",cal:579,protein:21,carbs:22,fat:50,serving:"30g handful",servingG:30,cat:"Fats"},
+  {name:"Walnuts",cal:654,protein:15,carbs:14,fat:65,serving:"30g handful",servingG:30,cat:"Fats"},
+  {name:"Cashews",cal:553,protein:18,carbs:30,fat:44,serving:"30g handful",servingG:30,cat:"Fats"},
+  {name:"Peanuts, roasted",cal:567,protein:26,carbs:16,fat:49,serving:"30g handful",servingG:30,cat:"Fats"},
+  {name:"Peanut Butter",cal:588,protein:25,carbs:20,fat:50,serving:"1 tbsp (15g)",servingG:15,cat:"Fats"},
+  {name:"Hummus",cal:166,protein:7.6,carbs:11,fat:10,serving:"2 tbsp (30g)",servingG:30,cat:"Fats"},
+  {name:"Chia Seeds",cal:486,protein:17,carbs:42,fat:31,serving:"1 tbsp (12g)",servingG:12,cat:"Fats"},
+  {name:"Sunflower Seeds",cal:584,protein:21,carbs:20,fat:51,serving:"30g portion",servingG:30,cat:"Fats"},
+  {name:"Pumpkin Seeds",cal:559,protein:30,carbs:11,fat:49,serving:"30g portion",servingG:30,cat:"Fats"},
+
+  // ── Drinks ──
+  {name:"Tea, black, no sugar",cal:1,protein:0,carbs:0,fat:0,serving:"1 mug (260ml)",servingG:260,cat:"Drinks"},
+  {name:"Coffee, black, no sugar",cal:2,protein:0.3,carbs:0,fat:0,serving:"1 mug (260ml)",servingG:260,cat:"Drinks"},
+  {name:"Coffee, with semi-skimmed milk",cal:13,protein:0.7,carbs:1,fat:0.3,serving:"1 mug (260ml)",servingG:260,cat:"Drinks"},
+  {name:"Latte, semi-skimmed, large",cal:125,protein:8.4,carbs:13,fat:4.4,serving:"1 cup (350ml)",servingG:350,cat:"Drinks"},
+  {name:"Cappuccino, semi-skimmed",cal:98,protein:6.5,carbs:10,fat:3.5,serving:"1 cup (300ml)",servingG:300,cat:"Drinks"},
+  {name:"Orange Juice, fresh",cal:42,protein:0.7,carbs:9,fat:0.2,serving:"200ml glass",servingG:200,cat:"Drinks"},
+  {name:"Coca-Cola",cal:42,protein:0,carbs:11,fat:0,serving:"330ml can",servingG:330,cat:"Drinks"},
+  {name:"Coca-Cola Zero",cal:0.3,protein:0,carbs:0,fat:0,serving:"330ml can",servingG:330,cat:"Drinks"},
+  {name:"Protein Shake (average)",cal:80,protein:20,carbs:3,fat:1,serving:"1 scoop in water",servingG:300,cat:"Drinks"},
+  {name:"Beer, lager, pint",cal:42,protein:0.3,carbs:3.4,fat:0,serving:"1 pint (568ml)",servingG:568,cat:"Drinks"},
+  {name:"Wine, red, 175ml glass",cal:85,protein:0.1,carbs:2.6,fat:0,serving:"175ml glass",servingG:175,cat:"Drinks"},
+  {name:"Wine, white, dry, 175ml",cal:77,protein:0.1,carbs:1.5,fat:0,serving:"175ml glass",servingG:175,cat:"Drinks"},
+  {name:"Spirits (vodka/gin/rum), single",cal:56,protein:0,carbs:0,fat:0,serving:"25ml measure",servingG:25,cat:"Drinks"},
+
+  // ── Snacks & Sweets ──
+  {name:"Cadbury Dairy Milk",cal:534,protein:7.3,carbs:57,fat:30,serving:"1 bar (45g)",servingG:45,cat:"Snacks"},
+  {name:"Dark Chocolate 70%",cal:598,protein:7.8,carbs:46,fat:43,serving:"25g (4 squares)",servingG:25,cat:"Snacks"},
+  {name:"KitKat 4 Finger",cal:511,protein:6.4,carbs:62,fat:26,serving:"1 bar (41.5g)",servingG:41.5,cat:"Snacks"},
+  {name:"McVitie's Digestive",cal:484,protein:6.7,carbs:63,fat:22,serving:"2 biscuits (30g)",servingG:30,cat:"Snacks"},
+  {name:"Chocolate Digestive",cal:493,protein:6.3,carbs:62,fat:24,serving:"2 biscuits (34g)",servingG:34,cat:"Snacks"},
+  {name:"Hobnob",cal:471,protein:6.2,carbs:61,fat:22,serving:"2 biscuits (29g)",servingG:29,cat:"Snacks"},
+  {name:"Walkers Crisps, Ready Salted",cal:528,protein:6.2,carbs:50,fat:33,serving:"1 bag (32.5g)",servingG:32.5,cat:"Snacks"},
+  {name:"Popcorn, sweet",cal:449,protein:5,carbs:70,fat:17,serving:"30g portion",servingG:30,cat:"Snacks"},
+  {name:"Rice Cakes, plain",cal:387,protein:8,carbs:81,fat:2.8,serving:"2 cakes (18g)",servingG:18,cat:"Snacks"},
+  {name:"Nakd Bar (average)",cal:350,protein:5,carbs:54,fat:12,serving:"1 bar (35g)",servingG:35,cat:"Snacks"},
+  {name:"Mars Bar",cal:449,protein:4.3,carbs:70,fat:17,serving:"1 bar (51g)",servingG:51,cat:"Snacks"},
+  {name:"Snickers",cal:488,protein:9,carbs:56,fat:25,serving:"1 bar (48g)",servingG:48,cat:"Snacks"},
+  {name:"Ice Cream, vanilla (average)",cal:207,protein:3.5,carbs:24,fat:11,serving:"1 scoop (66g)",servingG:66,cat:"Snacks"},
+  {name:"Haribo (average)",cal:343,protein:6.9,carbs:77,fat:0.5,serving:"small bag (100g)",servingG:100,cat:"Snacks"},
+
+  // ── Condiments & Sauces ──
+  {name:"Ketchup (Heinz)",cal:112,protein:1.1,carbs:26,fat:0.1,serving:"1 tbsp (17g)",servingG:17,cat:"Sauces"},
+  {name:"Mayonnaise",cal:680,protein:1,carbs:1.7,fat:75,serving:"1 tbsp (15g)",servingG:15,cat:"Sauces"},
+  {name:"Mayonnaise, light",cal:288,protein:0.6,carbs:6,fat:28,serving:"1 tbsp (15g)",servingG:15,cat:"Sauces"},
+  {name:"Soy Sauce",cal:53,protein:8.1,carbs:4.9,fat:0.1,serving:"1 tbsp (15ml)",servingG:15,cat:"Sauces"},
+  {name:"Honey",cal:304,protein:0.3,carbs:82,fat:0,serving:"1 tsp (7g)",servingG:7,cat:"Sauces"},
+  {name:"Marmite",cal:260,protein:39,carbs:24,fat:0.5,serving:"4g serving",servingG:4,cat:"Sauces"},
+  {name:"Pesto, green",cal:380,protein:5,carbs:6,fat:37,serving:"1 tbsp (15g)",servingG:15,cat:"Sauces"},
+  {name:"Curry Sauce, jar (average)",cal:80,protein:1.5,carbs:7,fat:5,serving:"125g portion",servingG:125,cat:"Sauces"},
+  {name:"Pasta Sauce, tomato (Dolmio)",cal:42,protein:1.3,carbs:7,fat:0.8,serving:"125g portion",servingG:125,cat:"Sauces"},
+
+  // ── UK Meals & Takeaway ──
+  {name:"Fish & Chips (average)",cal:170,protein:9,carbs:17,fat:7,serving:"1 portion (400g)",servingG:400,cat:"Meals"},
+  {name:"Chicken Tikka Masala",cal:130,protein:10,carbs:8,fat:7,serving:"300g portion",servingG:300,cat:"Meals"},
+  {name:"Chicken Korma",cal:145,protein:9,carbs:10,fat:8,serving:"300g portion",servingG:300,cat:"Meals"},
+  {name:"Chicken Jalfrezi",cal:110,protein:11,carbs:6,fat:5,serving:"300g portion",servingG:300,cat:"Meals"},
+  {name:"Lamb Rogan Josh",cal:120,protein:9,carbs:6,fat:7,serving:"300g portion",servingG:300,cat:"Meals"},
+  {name:"Pilau Rice",cal:140,protein:3,carbs:23,fat:4,serving:"200g portion",servingG:200,cat:"Meals"},
+  {name:"Egg Fried Rice",cal:174,protein:5,carbs:25,fat:6,serving:"200g portion",servingG:200,cat:"Meals"},
+  {name:"Chow Mein, chicken",cal:120,protein:8,carbs:13,fat:4,serving:"350g portion",servingG:350,cat:"Meals"},
+  {name:"Sweet & Sour Chicken",cal:135,protein:8,carbs:18,fat:3.5,serving:"300g portion",servingG:300,cat:"Meals"},
+  {name:"Pizza, Margherita (medium slice)",cal:220,protein:9,carbs:27,fat:8,serving:"1 slice (100g)",servingG:100,cat:"Meals"},
+  {name:"Pizza, Pepperoni (medium slice)",cal:260,protein:11,carbs:26,fat:12,serving:"1 slice (110g)",servingG:110,cat:"Meals"},
+  {name:"Kebab, chicken shish",cal:130,protein:18,carbs:6,fat:4,serving:"1 portion (250g)",servingG:250,cat:"Meals"},
+  {name:"Kebab, doner meat",cal:221,protein:14,carbs:12,fat:13,serving:"1 portion (200g)",servingG:200,cat:"Meals"},
+  {name:"Spaghetti Bolognese, homemade",cal:105,protein:7,carbs:10,fat:4,serving:"400g portion",servingG:400,cat:"Meals"},
+  {name:"Shepherd's Pie",cal:95,protein:6,carbs:8,fat:4.5,serving:"300g portion",servingG:300,cat:"Meals"},
+  {name:"Lasagne",cal:132,protein:7,carbs:12,fat:6,serving:"300g portion",servingG:300,cat:"Meals"},
+  {name:"Beans on Toast (2 slices)",cal:310,protein:14,carbs:52,fat:3.5,serving:"1 portion",servingG:300,cat:"Meals"},
+  {name:"Full English Breakfast",cal:800,protein:35,carbs:55,fat:48,serving:"1 plate",servingG:500,cat:"Meals"},
+  {name:"Omelette, 2 egg, cheese",cal:250,protein:18,carbs:1,fat:19,serving:"1 omelette",servingG:180,cat:"Meals"},
+  {name:"Jacket Potato with Beans",cal:290,protein:12,carbs:55,fat:1.5,serving:"1 portion",servingG:400,cat:"Meals"},
+  {name:"Jacket Potato with Cheese",cal:365,protein:14,carbs:44,fat:15,serving:"1 portion",servingG:350,cat:"Meals"},
+  {name:"Soup, tomato (Heinz)",cal:50,protein:0.7,carbs:8,fat:1.5,serving:"half tin (200g)",servingG:200,cat:"Meals"},
+  {name:"Sandwich, chicken & salad",cal:250,protein:16,carbs:28,fat:8,serving:"1 sandwich",servingG:200,cat:"Meals"},
+  {name:"Sandwich, tuna mayo",cal:270,protein:14,carbs:27,fat:12,serving:"1 sandwich",servingG:200,cat:"Meals"},
+  {name:"Wrap, chicken Caesar",cal:350,protein:20,carbs:30,fat:16,serving:"1 wrap",servingG:220,cat:"Meals"},
+  {name:"Sausage Roll (Greggs)",cal:327,protein:8,carbs:25,fat:22,serving:"1 roll (101g)",servingG:101,cat:"Meals"},
+  {name:"Steak Bake (Greggs)",cal:320,protein:10,carbs:30,fat:18,serving:"1 bake (134g)",servingG:134,cat:"Meals"},
+  {name:"Cornish Pasty",cal:270,protein:7,carbs:24,fat:16,serving:"1 pasty (150g)",servingG:150,cat:"Meals"},
+
+  // ── UK Fast Food ──
+  {name:"McDonald's Big Mac",cal:508,protein:25,carbs:42,fat:25,serving:"1 burger (200g)",servingG:200,cat:"Fast Food"},
+  {name:"McDonald's Quarter Pounder w/ Cheese",cal:518,protein:30,carbs:38,fat:26,serving:"1 burger",servingG:200,cat:"Fast Food"},
+  {name:"McDonald's McNuggets, 6pc",cal:259,protein:14,carbs:15,fat:16,serving:"6 pieces",servingG:96,cat:"Fast Food"},
+  {name:"McDonald's Medium Fries",cal:337,protein:4,carbs:42,fat:17,serving:"1 medium",servingG:114,cat:"Fast Food"},
+  {name:"McDonald's McChicken Sandwich",cal:388,protein:15,carbs:40,fat:19,serving:"1 sandwich",servingG:170,cat:"Fast Food"},
+  {name:"KFC Original Recipe Breast",cal:320,protein:25,carbs:12,fat:19,serving:"1 piece",servingG:160,cat:"Fast Food"},
+  {name:"KFC Zinger Burger",cal:450,protein:22,carbs:40,fat:22,serving:"1 burger",servingG:200,cat:"Fast Food"},
+  {name:"Nando's Half Chicken, plain",cal:565,protein:65,carbs:0,fat:33,serving:"half chicken",servingG:325,cat:"Fast Food"},
+  {name:"Nando's Peri Peri Chips, regular",cal:385,protein:5,carbs:45,fat:20,serving:"1 regular",servingG:200,cat:"Fast Food"},
+  {name:"Subway 6\" Chicken Teriyaki",cal:310,protein:20,carbs:41,fat:5,serving:"6 inch sub",servingG:240,cat:"Fast Food"},
+  {name:"Greggs Vegan Sausage Roll",cal:312,protein:6,carbs:28,fat:19,serving:"1 roll (101g)",servingG:101,cat:"Fast Food"},
+
+  // ── Ready Meals ──
+  {name:"Ready Meal, Chicken Tikka (avg)",cal:130,protein:9,carbs:14,fat:4,serving:"1 pack (400g)",servingG:400,cat:"Ready Meals"},
+  {name:"Ready Meal, Lasagne (avg)",cal:125,protein:6,carbs:12,fat:5.5,serving:"1 pack (400g)",servingG:400,cat:"Ready Meals"},
+  {name:"Ready Meal, Mac & Cheese",cal:150,protein:6,carbs:14,fat:7,serving:"1 pack (400g)",servingG:400,cat:"Ready Meals"},
+  {name:"Pot Noodle, Chicken & Mushroom",cal:420,protein:8,carbs:58,fat:17,serving:"1 pot (90g dry)",servingG:90,cat:"Ready Meals"},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
 const DEFAULT_PROFILE = {age:35.5,heightIn:69.5,gender:"M",activityLevel:1.375,startDate:new Date().toISOString().slice(0,10),startWeight:287,goalWeight:220,timelineMonths:9};
 let state = {
   tab: "log",
@@ -139,17 +409,23 @@ let state = {
   foodLog: {},
   dailyData: {},
   addingMeal: null,
+  foodsTab: "all",
+  foodsSearch: "",
+  editingFood: null,
 };
 
-// ─── Storage ───
 function load(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; } }
 function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { console.error(e); } }
 
 state.profile = load("ft-profile", DEFAULT_PROFILE);
 state.foodLog = load("ft-foodlog", {});
 state.dailyData = load("ft-daily", {});
+let customFoods = load("ft-customfoods", []);
 
-// ─── Helpers ───
+function getAllFoods() {
+  return [...FOOD_DB.map(f => ({...f, source:'db'})), ...customFoods.map(f => ({...f, source:'custom'}))];
+}
+
 const todayStr = () => new Date().toISOString().slice(0,10);
 const fmtDate = d => { const dt = new Date(d+"T12:00:00"); return dt.toLocaleDateString("en-US",{month:"short",day:"numeric"}); };
 const fmtDateFull = d => { const dt = new Date(d+"T12:00:00"); return dt.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}); };
@@ -188,19 +464,151 @@ function shiftDate(d, delta) {
   return dt.toISOString().slice(0,10);
 }
 
-// ─── Render ───
+// ═══════════════════════════════════════════════════════════════
+// AUTOCOMPLETE
+// ═══════════════════════════════════════════════════════════════
+let acTimeout = null, acResults = [], acSelectedIdx = -1, acSearching = false;
+
+function calcServing(food) {
+  const r = (food.servingG || 100) / 100;
+  return {
+    cal: Math.round(food.cal * r),
+    protein: Math.round(food.protein * r * 10)/10,
+    carbs: Math.round(food.carbs * r * 10)/10,
+    fat: Math.round(food.fat * r * 10)/10,
+    serving: food.serving || `${food.servingG||100}g`
+  };
+}
+
+function searchLocal(query) {
+  if (!query || query.length < 2) return [];
+  const words = query.toLowerCase().split(/\s+/);
+  return getAllFoods()
+    .map(food => {
+      const n = food.name.toLowerCase();
+      let score = 0;
+      if (n.startsWith(query.toLowerCase())) score += 100;
+      if (words.every(w => n.includes(w))) score += 50;
+      words.forEach(w => { if (n.includes(w)) score += 10; });
+      return { ...food, score };
+    })
+    .filter(f => f.score > 0)
+    .sort((a,b) => b.score - a.score)
+    .slice(0, 12);
+}
+
+async function searchAPI(query) {
+  try {
+    const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=8&fields=product_name,nutriments,serving_size,brands&tagtype_0=countries&tag_contains_0=contains&tag_0=United+Kingdom`, {signal: AbortSignal.timeout(4000)});
+    const data = await res.json();
+    if (!data.products) return [];
+    return data.products
+      .filter(p => p.product_name && p.nutriments)
+      .map(p => {
+        const n = p.nutriments;
+        return {
+          name: p.product_name + (p.brands ? ` (${p.brands})` : ''),
+          cal: Math.round(n['energy-kcal_100g'] || n['energy-kcal'] || 0),
+          protein: Math.round((n.proteins_100g || 0)*10)/10,
+          carbs: Math.round((n.carbohydrates_100g || 0)*10)/10,
+          fat: Math.round((n.fat_100g || 0)*10)/10,
+          serving: p.serving_size || '100g',
+          servingG: 100,
+          source: 'api',
+          cat: 'Search Result'
+        };
+      })
+      .filter(f => f.cal > 0);
+  } catch { return []; }
+}
+
+function handleAcInput(el) {
+  const q = el.value.trim();
+  const list = el.parentElement.querySelector('.ac-list');
+  if (q.length < 2) { list.classList.remove('show'); acResults = []; return; }
+
+  const local = searchLocal(q);
+  acResults = local;
+  acSelectedIdx = -1;
+  renderAc(list, false);
+  list.classList.add('show');
+
+  clearTimeout(acTimeout);
+  acTimeout = setTimeout(async () => {
+    acSearching = true;
+    renderAc(list, true);
+    const api = await searchAPI(q);
+    const names = new Set(local.map(f => f.name.toLowerCase()));
+    acResults = [...local, ...api.filter(f => !names.has(f.name.toLowerCase()))].slice(0, 15);
+    acSearching = false;
+    renderAc(list, false);
+  }, 600);
+}
+
+function renderAc(list, searching) {
+  let html = '';
+  if (!acResults.length && !searching) {
+    html = '<div class="ac-hint">Type 2+ chars to search foods. You can also type freely.</div>';
+  }
+  acResults.forEach((food, i) => {
+    const s = calcServing(food);
+    const cls = food.source === 'custom' ? 'custom' : food.source === 'api' ? 'api' : 'db';
+    const lbl = food.source === 'custom' ? 'MY FOOD' : food.source === 'api' ? 'ONLINE' : 'BUILT-IN';
+    html += `<div class="ac-item${i===acSelectedIdx?' selected':''}" data-idx="${i}">
+      <span class="ac-item-cal">${s.cal} cal</span>
+      <div class="ac-item-name">${esc(food.name)} <span class="ac-item-source ${cls}">${lbl}</span></div>
+      <div class="ac-item-meta">${esc(s.serving)} · P:${s.protein}g · C:${s.carbs}g · F:${s.fat}g</div>
+    </div>`;
+  });
+  if (searching) html += '<div class="ac-searching">🔍 Searching online...</div>';
+  list.innerHTML = html;
+  list.querySelectorAll('.ac-item').forEach(item => {
+    item.addEventListener('click', () => selectAc(Number(item.dataset.idx)));
+  });
+}
+
+function selectAc(idx) {
+  const food = acResults[idx];
+  if (!food) return;
+  const s = calcServing(food);
+  const f = id => document.getElementById(id);
+  if (f('fi-name')) f('fi-name').value = food.name;
+  if (f('fi-cal')) f('fi-cal').value = s.cal;
+  if (f('fi-srv')) f('fi-srv').value = s.serving;
+  if (f('fi-pro')) f('fi-pro').value = s.protein;
+  if (f('fi-car')) f('fi-car').value = s.carbs;
+  if (f('fi-fat')) f('fi-fat').value = s.fat;
+  const list = f('fi-name')?.parentElement.querySelector('.ac-list');
+  if (list) list.classList.remove('show');
+  acResults = [];
+}
+
+function handleAcKey(e) {
+  const list = e.target.parentElement.querySelector('.ac-list');
+  if (!list.classList.contains('show') || !acResults.length) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); acSelectedIdx = Math.min(acSelectedIdx+1, acResults.length-1); renderAc(list, acSearching); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); acSelectedIdx = Math.max(acSelectedIdx-1, -1); renderAc(list, acSearching); }
+  else if (e.key === 'Enter' && acSelectedIdx >= 0) { e.preventDefault(); selectAc(acSelectedIdx); }
+  else if (e.key === 'Escape') list.classList.remove('show');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ac-wrap')) document.querySelectorAll('.ac-list').forEach(l => l.classList.remove('show'));
+});
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
 function render() {
   const m = calcMetrics(state.profile);
   document.getElementById("headerTarget").textContent = m.calorieTarget + " CAL/DAY TARGET";
-
-  document.querySelectorAll(".tab-btn").forEach(b => {
-    b.classList.toggle("active", b.dataset.tab === state.tab);
-  });
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === state.tab));
 
   const el = document.getElementById("content");
   switch(state.tab) {
     case "log": el.innerHTML = renderLog(m); break;
     case "daily": el.innerHTML = renderDaily(m); break;
+    case "foods": el.innerHTML = renderFoods(); break;
     case "weekly": el.innerHTML = renderWeekly(m); break;
     case "monthly": el.innerHTML = renderMonthly(m); break;
     case "profile": el.innerHTML = renderProfile(m); break;
@@ -267,7 +675,10 @@ function renderLog(m) {
 
     if (isOpen) {
       html += `<div class="add-form">
-        <input id="fi-name" placeholder="Food item *">
+        <div class="ac-wrap">
+          <input id="fi-name" placeholder="Search food or type name *" autocomplete="off">
+          <div class="ac-list"></div>
+        </div>
         <div class="row"><input id="fi-cal" type="number" placeholder="Calories *" style="flex:1"><input id="fi-srv" placeholder="Serving size" style="flex:1"></div>
         <div class="row"><input id="fi-pro" type="number" placeholder="Protein g" style="flex:1"><input id="fi-car" type="number" placeholder="Carbs g" style="flex:1"><input id="fi-fat" type="number" placeholder="Fat g" style="flex:1"></div>
         <button class="submit-btn" onclick="addFood('${meal}')">Add Item</button>
@@ -275,16 +686,11 @@ function renderLog(m) {
     }
     html += `</div>`;
   });
-
   return html;
 }
 
 function renderDaily(m) {
-  const d = state.selectedDate;
-  const totals = getDayTotals(d);
-  const dd = state.dailyData[d] || {};
-  const surplus = totals.calories - m.calorieTarget;
-
+  const d = state.selectedDate, totals = getDayTotals(d), dd = state.dailyData[d]||{}, surplus = totals.calories - m.calorieTarget;
   return `
     <div class="nav-row">
       <button class="nav-btn" onclick="navDay(-1)">◀</button>
@@ -314,17 +720,242 @@ function renderDaily(m) {
     </div>`;
 }
 
+function renderFoods() {
+  const tab = state.foodsTab, q = state.foodsSearch.toLowerCase();
+  let html = `<div class="section-title">Food Database</div>`;
+  html += `<input id="foodsSearchInput" placeholder="Search foods..." value="${esc(state.foodsSearch)}" style="margin-bottom:12px">`;
+
+  const cats = ['all','custom','Protein','Dairy','Carbs','Fruit','Veg','Fats','Drinks','Snacks','Sauces','Meals','Fast Food','Ready Meals'];
+  html += `<div class="tab-pills" style="overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px">`;
+  cats.forEach(c => {
+    const label = c === 'all' ? `All (${FOOD_DB.length + customFoods.length})` : c === 'custom' ? `My Foods (${customFoods.length})` : c;
+    html += `<button class="tab-pill ${tab===c?'active':''}" onclick="setFoodsTab('${c}')">${label}</button>`;
+  });
+  html += `</div>`;
+  html += `<div style="display:flex;gap:8px;margin-bottom:14px">
+    <button class="submit-btn" onclick="openAddFood()" style="flex:1;margin-top:0;background:rgba(129,140,248,0.15);color:var(--blue);border:1px solid rgba(129,140,248,0.3)">+ Add Food</button>
+    <button class="submit-btn" onclick="document.getElementById('csvImport').click()" style="flex:1;margin-top:0;background:rgba(245,158,11,0.15);color:var(--orange);border:1px solid rgba(245,158,11,0.3)">📥 Import CSV</button>
+  </div>
+  <input type="file" id="csvImport" accept=".csv,.tsv,.txt" style="display:none" onchange="importCSV(this)">
+  <div id="importStatus"></div>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button class="submit-btn" onclick="downloadTemplate()" style="flex:1;margin-top:0;background:rgba(99,200,170,0.08);color:var(--dim);border:1px solid var(--border);font-size:12px">📄 Download Template</button>
+    <button class="submit-btn" onclick="exportCustomFoods()" style="flex:1;margin-top:0;background:rgba(99,200,170,0.08);color:var(--dim);border:1px solid var(--border);font-size:12px">📤 Export My Foods</button>
+  </div>`;
+
+  let foods = tab === 'custom' ? customFoods.map(f => ({...f,source:'custom'})) : tab === 'all' ? getAllFoods() : getAllFoods().filter(f => f.cat === tab);
+  if (q) { const words = q.split(/\s+/); foods = foods.filter(f => words.every(w => f.name.toLowerCase().includes(w))); }
+
+  html += `<div class="food-count">${foods.length} food${foods.length!==1?'s':''}</div>`;
+  html += `<div class="card" style="padding:0;overflow:hidden">`;
+  if (!foods.length) {
+    html += `<div class="empty" style="padding:30px"><div class="empty-icon">${tab==='custom'?'📝':'🔍'}</div>${tab==='custom'?'No custom foods yet. Tap "+ Add Custom Food" above.':'No foods found.'}</div>`;
+  } else {
+    foods.slice(0, 50).forEach((food, fi) => {
+      const s = calcServing(food);
+      const isC = food.source === 'custom';
+      const ci = isC ? customFoods.findIndex(cf => cf.name === food.name) : -1;
+      html += `<div class="food-db-item">
+        <div style="flex:1;min-width:0">
+          <div class="food-db-name">${esc(food.name)} ${isC ? '<span class="ac-item-source custom">MY FOOD</span>' : ''}</div>
+          <div class="food-db-detail">${esc(s.serving)} · ${s.cal} cal · P:${s.protein}g · C:${s.carbs}g · F:${s.fat}g</div>
+        </div>
+        <div class="food-db-actions">
+          <span style="font-size:14px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace;min-width:45px;text-align:right">${s.cal}</span>
+          ${isC ? `<button class="edit-btn" onclick="openEditFood(${ci})">✎</button><button class="del-btn" onclick="deleteCustomFood(${ci})">×</button>` : ''}
+        </div>
+      </div>`;
+    });
+    if (foods.length > 50) html += `<div style="padding:12px;text-align:center;color:var(--dim);font-size:12px">Showing 50 of ${foods.length}. Search to narrow down.</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function setFoodsTab(t) { state.foodsTab = t; render(); }
+
+// ═══════════════════════════════════════════════════════════════
+// CUSTOM FOOD MODAL
+// ═══════════════════════════════════════════════════════════════
+function openAddFood() { state.editingFood = null; showFoodModal({name:'',cal:'',protein:'',carbs:'',fat:'',serving:'100g',servingG:100,cat:'Custom'}); }
+function openEditFood(idx) { state.editingFood = idx; showFoodModal({...customFoods[idx]}); }
+
+function showFoodModal(food) {
+  const cats = ['Custom','Protein','Dairy','Carbs','Fruit','Veg','Fats','Drinks','Snacks','Sauces','Meals','Fast Food','Ready Meals'];
+  document.getElementById('modalRoot').innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-title">${state.editingFood !== null ? 'Edit Food' : 'Add Custom Food'}</div>
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Food Name *</label><input id="mf-name" value="${esc(food.name)}" placeholder="e.g. My protein pancakes"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Calories (per 100g) *</label><input id="mf-cal" type="number" value="${food.cal}" placeholder="e.g. 250"></div>
+        <div class="form-group"><label class="form-label">Category</label><select id="mf-cat">${cats.map(c=>`<option value="${c}" ${food.cat===c?'selected':''}>${c}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Protein g /100g</label><input id="mf-pro" type="number" value="${food.protein}" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Carbs g /100g</label><input id="mf-car" type="number" value="${food.carbs}" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Fat g /100g</label><input id="mf-fat" type="number" value="${food.fat}" placeholder="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Serving Description</label><input id="mf-srv" value="${esc(food.serving||'')}" placeholder="e.g. 1 portion (200g)"></div>
+        <div class="form-group"><label class="form-label">Serving (g)</label><input id="mf-srvg" type="number" value="${food.servingG||100}" placeholder="100"></div>
+      </div>
+      <div class="modal-btns">
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="save-btn" onclick="saveCustomFood()">Save</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function closeModal() { document.getElementById('modalRoot').innerHTML = ''; state.editingFood = null; }
+
+function saveCustomFood() {
+  const name = document.getElementById('mf-name').value.trim();
+  const cal = Number(document.getElementById('mf-cal').value);
+  if (!name || !cal) return alert('Please enter a name and calories.');
+  const food = {
+    name, cal,
+    protein: Number(document.getElementById('mf-pro').value)||0,
+    carbs: Number(document.getElementById('mf-car').value)||0,
+    fat: Number(document.getElementById('mf-fat').value)||0,
+    serving: document.getElementById('mf-srv').value||'100g',
+    servingG: Number(document.getElementById('mf-srvg').value)||100,
+    cat: document.getElementById('mf-cat').value||'Custom',
+  };
+  if (state.editingFood !== null) customFoods[state.editingFood] = food;
+  else customFoods.push(food);
+  save('ft-customfoods', customFoods);
+  closeModal();
+  render();
+}
+
+function deleteCustomFood(idx) {
+  if (!confirm('Delete "' + customFoods[idx].name + '"?')) return;
+  customFoods.splice(idx, 1);
+  save('ft-customfoods', customFoods);
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CSV IMPORT / EXPORT FOR CUSTOM FOODS
+// ═══════════════════════════════════════════════════════════════
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i+1] === '"') { current += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { current += ch; }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ',' || ch === '\t') { result.push(current.trim()); current = ''; }
+      else { current += ch; }
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function importCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) { alert('CSV needs a header row and at least one data row.'); input.value = ''; return; }
+
+    // Parse header to find columns
+    const header = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+    
+    // Map flexible column names
+    const colMap = {};
+    header.forEach((h, i) => {
+      if (['name','food','foodname','item','fooditem','description'].includes(h)) colMap.name = i;
+      else if (['cal','cals','calories','kcal','energy','energykcal','caloriesper100g'].includes(h)) colMap.cal = i;
+      else if (['protein','proteins','proteing','pro'].includes(h)) colMap.protein = i;
+      else if (['carbs','carbohydrates','carbsg','carbohydrate','cho'].includes(h)) colMap.carbs = i;
+      else if (['fat','fats','fatg','totalfat'].includes(h)) colMap.fat = i;
+      else if (['serving','servingsize','servingdescription','portion'].includes(h)) colMap.serving = i;
+      else if (['servingg','servingweight','servingweightg','servingsizeg','portionweight','portionweightg'].includes(h)) colMap.servingG = i;
+      else if (['cat','category','foodcategory','group','foodgroup','type'].includes(h)) colMap.cat = i;
+    });
+
+    if (colMap.name === undefined) { alert('Could not find a "name" column. Make sure your CSV has a header row with at least: name, calories'); input.value = ''; return; }
+    if (colMap.cal === undefined) { alert('Could not find a "calories" column. Make sure your CSV has a header row with at least: name, calories'); input.value = ''; return; }
+
+    // Parse rows
+    let imported = 0, skipped = 0, duplicates = 0;
+    const existingNames = new Set(customFoods.map(f => f.name.toLowerCase()));
+    const errors = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseCSVLine(lines[i]);
+      const name = cols[colMap.name]?.trim();
+      const cal = Number(cols[colMap.cal]);
+      
+      if (!name) { skipped++; continue; }
+      if (!cal || isNaN(cal)) { errors.push(`Row ${i+1}: "${name}" — invalid calories`); skipped++; continue; }
+      if (existingNames.has(name.toLowerCase())) { duplicates++; continue; }
+
+      customFoods.push({
+        name,
+        cal: Math.round(cal * 10) / 10,
+        protein: colMap.protein !== undefined ? (Number(cols[colMap.protein]) || 0) : 0,
+        carbs: colMap.carbs !== undefined ? (Number(cols[colMap.carbs]) || 0) : 0,
+        fat: colMap.fat !== undefined ? (Number(cols[colMap.fat]) || 0) : 0,
+        serving: colMap.serving !== undefined ? (cols[colMap.serving] || '100g') : '100g',
+        servingG: colMap.servingG !== undefined ? (Number(cols[colMap.servingG]) || 100) : 100,
+        cat: colMap.cat !== undefined ? (cols[colMap.cat] || 'Custom') : 'Custom',
+      });
+      existingNames.add(name.toLowerCase());
+      imported++;
+    }
+
+    save('ft-customfoods', customFoods);
+    input.value = '';
+
+    let msg = `Imported ${imported} food${imported !== 1 ? 's' : ''}.`;
+    if (duplicates) msg += ` ${duplicates} duplicate${duplicates !== 1 ? 's' : ''} skipped.`;
+    if (skipped) msg += ` ${skipped} row${skipped !== 1 ? 's' : ''} skipped (missing data).`;
+    if (errors.length) msg += '\n\nErrors:\n' + errors.slice(0, 5).join('\n');
+    
+    alert(msg);
+    state.foodsTab = 'custom';
+    render();
+  };
+  reader.readAsText(file);
+}
+
+function exportCustomFoods() {
+  if (!customFoods.length) { alert('No custom foods to export.'); return; }
+  const rows = [['name','calories','protein','carbs','fat','serving','serving_weight_g','category']];
+  customFoods.forEach(f => {
+    rows.push([f.name, f.cal, f.protein||0, f.carbs||0, f.fat||0, f.serving||'100g', f.servingG||100, f.cat||'Custom']);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  downloadCSV(`fueltrack-custom-foods-${todayStr()}.csv`, csv);
+}
+
+function downloadTemplate() {
+  const rows = [
+    ['name','calories','protein','carbs','fat','serving','serving_weight_g','category'],
+    ['Example: My Protein Bar','210','20','25','8','1 bar (60g)','60','Snacks'],
+    ['Example: Homemade Curry','95','8','6','4','300g portion','300','Meals'],
+  ];
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  downloadCSV('fueltrack-import-template.csv', csv);
+}
+// WEEKLY / MONTHLY / PROFILE
+// ═══════════════════════════════════════════════════════════════
 function renderWeekly(m) {
   const allDates = [...new Set([...Object.keys(state.foodLog),...Object.keys(state.dailyData)])].sort();
   if (!allDates.length) return `<div class="section-title">Weekly Summary</div><div class="empty"><div class="empty-icon">📋</div>Start logging food to see weekly summaries!</div>`;
-
   const weekMap = {};
-  allDates.forEach(date => {
-    const wk = getWeekNum(date, state.profile.startDate);
-    if (!weekMap[wk]) weekMap[wk] = [];
-    weekMap[wk].push(date);
-  });
-
+  allDates.forEach(date => { const wk = getWeekNum(date, state.profile.startDate); if (!weekMap[wk]) weekMap[wk] = []; weekMap[wk].push(date); });
   let html = `<div class="section-title">Weekly Summary</div>`;
   Object.entries(weekMap).sort((a,b) => b[0]-a[0]).forEach(([wk, dates]) => {
     const cals = dates.map(d => getDayTotals(d).calories).filter(c => c > 0);
@@ -333,15 +964,11 @@ function renderWeekly(m) {
     const drinks = dates.reduce((s,d) => s + (Number(state.dailyData[d]?.alcohol)||0), 0);
     const avgCal = cals.length ? Math.round(cals.reduce((a,b)=>a+b,0)/cals.length) : null;
     const avgWater = waters.length ? Math.round(waters.reduce((a,b)=>a+b,0)/waters.length) : null;
-    const startW = weights[0] || null, endW = weights[weights.length-1] || null;
+    const startW = weights[0]||null, endW = weights[weights.length-1]||null;
     const change = startW && endW ? (endW - startW).toFixed(1) : null;
     const onTrack = avgCal !== null && avgCal <= m.calorieTarget;
-
-    html += `<div class="week-card" style="border-color:${avgCal !== null ? (onTrack ? 'rgba(99,200,170,0.15)' : 'rgba(239,68,68,0.15)') : 'var(--border)'}">
-      <div class="week-head">
-        <div><div class="week-num">Week ${wk}</div><div class="week-dates">${fmtDate(dates[0])} – ${fmtDate(dates[dates.length-1])}</div></div>
-        <span class="badge ${avgCal!==null?(onTrack?'on':'off'):''}">${avgCal!==null?(onTrack?'On Track':'Over'):'—'}</span>
-      </div>
+    html += `<div class="week-card" style="border-color:${avgCal!==null?(onTrack?'rgba(99,200,170,0.15)':'rgba(239,68,68,0.15)'):'var(--border)'}">
+      <div class="week-head"><div><div class="week-num">Week ${wk}</div><div class="week-dates">${fmtDate(dates[0])} – ${fmtDate(dates[dates.length-1])}</div></div><span class="badge ${avgCal!==null?(onTrack?'on':'off'):''}">${avgCal!==null?(onTrack?'On Track':'Over'):'—'}</span></div>
       <div class="mini-stats">
         <div class="mini-stat"><div class="mini-stat-label">Avg Cal</div><span class="mini-stat-val" style="color:var(--accent)">${avgCal??'—'}</span></div>
         <div class="mini-stat"><div class="mini-stat-label">Weight Δ</div><span class="mini-stat-val" style="color:${change&&Number(change)<0?'var(--accent2)':'var(--red)'}">${change??'—'}</span><span class="mini-stat-unit"> lbs</span></div>
@@ -356,43 +983,27 @@ function renderWeekly(m) {
 function renderMonthly(m) {
   const allDates = [...new Set([...Object.keys(state.foodLog),...Object.keys(state.dailyData)])].sort();
   let html = `<div class="section-title">Monthly Summary</div>`;
-
-  // Chart placeholder
-  const weightEntries = Object.entries(state.dailyData).filter(([,d])=>d.weight&&Number(d.weight)>0).sort(([a],[b])=>a.localeCompare(b));
-  if (weightEntries.length > 1) {
-    html += `<div class="chart-container"><div class="chart-title">Weight Progress</div><div class="chart-area"><canvas id="weightChart"></canvas></div></div>`;
-  }
-
-  if (!allDates.length) return html + `<div class="empty"><div class="empty-icon">📋</div>Start logging to see monthly summaries and charts!</div>`;
-
-  const monthMap = {};
-  allDates.forEach(date => {
-    const mk = getMonthKey(date);
-    if (!monthMap[mk]) monthMap[mk] = [];
-    monthMap[mk].push(date);
-  });
-
-  let cumLost = 0;
-  Object.entries(monthMap).sort().forEach(([mk, dates]) => {
+  const we = Object.entries(state.dailyData).filter(([,d])=>d.weight&&Number(d.weight)>0).sort(([a],[b])=>a.localeCompare(b));
+  if (we.length > 1) html += `<div class="chart-container"><div class="chart-title">Weight Progress</div><div class="chart-area"><canvas id="weightChart"></canvas></div></div>`;
+  if (!allDates.length) return html + `<div class="empty"><div class="empty-icon">📋</div>Start logging to see monthly summaries!</div>`;
+  const mm = {};
+  allDates.forEach(d => { const mk = getMonthKey(d); if (!mm[mk]) mm[mk] = []; mm[mk].push(d); });
+  let cum = 0;
+  Object.entries(mm).sort().forEach(([mk, dates]) => {
     const cals = dates.map(d => getDayTotals(d).calories).filter(c => c > 0);
     const weights = dates.map(d => Number(state.dailyData[d]?.weight)).filter(w => w > 0);
     const avgCal = cals.length ? Math.round(cals.reduce((a,b)=>a+b,0)/cals.length) : null;
-    const startW = weights[0]||null, endW = weights[weights.length-1]||null;
-    const lost = startW && endW ? startW - endW : 0;
-    cumLost += lost;
-    const pctGoal = m.weightToLose > 0 ? ((lost/m.weightToLose)*100).toFixed(1) : 0;
-    const dt = new Date(mk+"-15");
-    const label = dt.toLocaleDateString("en-US",{month:"long",year:"numeric"});
-
-    html += `<div class="week-card">
-      <div class="week-num" style="margin-bottom:10px">${label}</div>
-      <div class="mini-stats">
-        <div class="mini-stat"><div class="mini-stat-label">Lost</div><span class="mini-stat-val" style="color:var(--accent2)">${lost.toFixed(1)}</span><span class="mini-stat-unit"> lbs</span></div>
-        <div class="mini-stat"><div class="mini-stat-label">% of Goal</div><span class="mini-stat-val" style="color:var(--blue)">${pctGoal}</span><span class="mini-stat-unit">%</span></div>
-        <div class="mini-stat"><div class="mini-stat-label">Avg Cal</div><span class="mini-stat-val" style="color:var(--accent)">${avgCal??'—'}</span></div>
-        <div class="mini-stat"><div class="mini-stat-label">Cumulative</div><span class="mini-stat-val" style="color:var(--orange)">${cumLost.toFixed(1)}</span><span class="mini-stat-unit"> lbs</span></div>
-      </div>
-    </div>`;
+    const sW = weights[0]||null, eW = weights[weights.length-1]||null;
+    const lost = sW && eW ? sW - eW : 0;
+    cum += lost;
+    const pct = m.weightToLose > 0 ? ((lost/m.weightToLose)*100).toFixed(1) : 0;
+    const label = new Date(mk+"-15").toLocaleDateString("en-US",{month:"long",year:"numeric"});
+    html += `<div class="week-card"><div class="week-num" style="margin-bottom:10px">${label}</div><div class="mini-stats">
+      <div class="mini-stat"><div class="mini-stat-label">Lost</div><span class="mini-stat-val" style="color:var(--accent2)">${lost.toFixed(1)}</span><span class="mini-stat-unit"> lbs</span></div>
+      <div class="mini-stat"><div class="mini-stat-label">% of Goal</div><span class="mini-stat-val" style="color:var(--blue)">${pct}</span><span class="mini-stat-unit">%</span></div>
+      <div class="mini-stat"><div class="mini-stat-label">Avg Cal</div><span class="mini-stat-val" style="color:var(--accent)">${avgCal??'—'}</span></div>
+      <div class="mini-stat"><div class="mini-stat-label">Cumulative</div><span class="mini-stat-val" style="color:var(--orange)">${cum.toFixed(1)}</span><span class="mini-stat-unit"> lbs</span></div>
+    </div></div>`;
   });
   return html;
 }
@@ -400,11 +1011,9 @@ function renderMonthly(m) {
 function renderProfile(m) {
   const p = state.profile;
   const actOpts = [{l:"Sedentary",v:1.2},{l:"Lightly Active",v:1.375},{l:"Moderately Active",v:1.55},{l:"Very Active",v:1.725}];
-
   return `
     <div class="section-title">Profile & Goals</div>
-    <div class="card">
-      <div class="card-title">Personal Info</div>
+    <div class="card"><div class="card-title">Personal Info</div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Age</label><input type="number" step="0.5" value="${p.age}" onchange="updateProfile('age',Number(this.value))"></div>
         <div class="form-group"><label class="form-label">Height (in)</label><input type="number" step="0.5" value="${p.heightIn}" onchange="updateProfile('heightIn',Number(this.value))"></div>
@@ -419,8 +1028,7 @@ function renderProfile(m) {
         <div class="form-group"><label class="form-label">Activity Level</label><select onchange="updateProfile('activityLevel',Number(this.value))">${actOpts.map(o=>`<option value="${o.v}" ${p.activityLevel===o.v?'selected':''}>${o.l}</option>`).join('')}</select></div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-title">Calculated Metrics</div>
+    <div class="card"><div class="card-title">Calculated Metrics</div>
       <div class="metrics-row">
         <div class="metric"><div class="metric-label">To Lose</div><div><span class="metric-val" style="color:var(--accent)">${m.weightToLose}</span><span class="metric-unit"> lbs</span></div></div>
         <div class="metric"><div class="metric-label">Lbs/Week</div><div><span class="metric-val" style="color:var(--orange)">${m.lbsPerWeek.toFixed(1)}</span></div></div>
@@ -432,16 +1040,15 @@ function renderProfile(m) {
         <div class="metric"><div class="metric-label">Target</div><div><span class="metric-val" style="color:var(--accent2)">${m.calorieTarget}</span><span class="metric-unit"> cal</span></div></div>
       </div>
     </div>
-    <div class="tips">
-      <div class="tips-title">Tips</div>
-      BMR uses the Mifflin-St Jeor equation. As you lose weight, update your start weight to recalculate your target. Aim for 0.7–1g protein per lb of goal weight (154–220g/day) to preserve muscle mass with strength training. Exercise calories are a bonus deficit — don't eat them back.
+    <div class="tips"><div class="tips-title">Tips</div>BMR uses the Mifflin-St Jeor equation. As you lose weight, update your start weight to recalculate your target. Aim for 0.7–1g protein per lb of goal weight to preserve muscle mass with strength training.</div>
+    <div class="card" style="margin-top:12px"><div class="card-title">Food Database</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">Built-in foods: <span style="color:var(--accent);font-weight:700">${FOOD_DB.length}</span><br>Custom foods: <span style="color:var(--blue);font-weight:700">${customFoods.length}</span><br>Online search: <span style="color:var(--orange);font-weight:700">Open Food Facts (UK)</span></div>
     </div>
-    <div class="card" style="margin-top:12px">
-      <div class="card-title">Export Data</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Download your tracking data as CSV files you can open in Excel, Google Sheets, etc.</div>
+    <div class="card" style="margin-top:12px"><div class="card-title">Export Data</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Download tracking data as CSV.</div>
       <button class="submit-btn" onclick="exportFoodLog()" style="margin-bottom:8px;background:rgba(99,200,170,0.15);color:var(--accent);border:1px solid rgba(99,200,170,0.3)">📋 Export Food Log</button>
       <button class="submit-btn" onclick="exportDailyData()" style="margin-bottom:8px;background:rgba(129,140,248,0.15);color:var(--blue);border:1px solid rgba(129,140,248,0.3)">📊 Export Daily Summary</button>
-      <button class="submit-btn" onclick="exportAll()" style="background:var(--accent);color:#0f172a">⬇️ Export All Data</button>
+      <button class="submit-btn" onclick="exportAll()" style="background:var(--accent);color:#0f172a">⬇️ Export All</button>
     </div>`;
 }
 
@@ -452,81 +1059,37 @@ function drawChart() {
   const ctx = canvas.getContext("2d");
   const entries = Object.entries(state.dailyData).filter(([,d])=>d.weight&&Number(d.weight)>0).sort(([a],[b])=>a.localeCompare(b));
   if (entries.length < 2) return;
-
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = window.devicePixelRatio||1;
   const rect = canvas.parentElement.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = 200 * dpr;
-  canvas.style.width = rect.width + "px";
-  canvas.style.height = "200px";
+  canvas.width = rect.width*dpr; canvas.height = 200*dpr;
+  canvas.style.width = rect.width+"px"; canvas.style.height = "200px";
   ctx.scale(dpr, dpr);
-
-  const W = rect.width, H = 200;
-  const pad = {t:20,r:20,b:30,l:45};
+  const W = rect.width, H = 200, pad = {t:20,r:20,b:30,l:45};
   const pw = W-pad.l-pad.r, ph = H-pad.t-pad.b;
-
   const weights = entries.map(([,d])=>Number(d.weight));
   const goal = state.profile.goalWeight;
-  const minW = Math.min(...weights, goal) - 5;
-  const maxW = Math.max(...weights) + 5;
-
-  const xScale = i => pad.l + (i/(entries.length-1))*pw;
-  const yScale = v => pad.t + (1-(v-minW)/(maxW-minW))*ph;
-
-  // Grid
-  ctx.strokeStyle = "rgba(99,200,170,0.08)";
-  ctx.lineWidth = 1;
-  for (let i=0; i<5; i++) {
-    const y = pad.t + (i/4)*ph;
-    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W-pad.r, y); ctx.stroke();
-    ctx.fillStyle = "#64748b"; ctx.font = "10px 'DM Sans'"; ctx.textAlign = "right";
-    ctx.fillText(Math.round(maxW - (i/4)*(maxW-minW)), pad.l-6, y+4);
-  }
-
-  // X labels
-  ctx.textAlign = "center";
-  const step = Math.max(1, Math.floor(entries.length / 6));
-  entries.forEach(([date], i) => {
-    if (i % step === 0 || i === entries.length-1) {
-      ctx.fillStyle = "#64748b"; ctx.font = "10px 'DM Sans'";
-      ctx.fillText(fmtDate(date), xScale(i), H-8);
-    }
-  });
-
-  // Goal line
-  const gy = yScale(goal);
-  ctx.strokeStyle = "#34d399"; ctx.lineWidth = 1; ctx.setLineDash([5,5]);
-  ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(W-pad.r, gy); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = "#34d399"; ctx.font = "10px 'DM Sans'"; ctx.textAlign = "left";
-  ctx.fillText("Goal", W-pad.r+2, gy+4);
-
-  // Line
-  ctx.strokeStyle = "#63c8aa"; ctx.lineWidth = 2.5; ctx.lineJoin = "round";
-  ctx.beginPath();
-  entries.forEach(([,d], i) => {
-    const x = xScale(i), y = yScale(Number(d.weight));
-    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-  });
-  ctx.stroke();
-
-  // Dots
-  entries.forEach(([,d], i) => {
-    ctx.beginPath();
-    ctx.arc(xScale(i), yScale(Number(d.weight)), 3, 0, Math.PI*2);
-    ctx.fillStyle = "#63c8aa"; ctx.fill();
-  });
+  const minW = Math.min(...weights, goal)-5, maxW = Math.max(...weights)+5;
+  const xS = i => pad.l + (i/(entries.length-1))*pw;
+  const yS = v => pad.t + (1-(v-minW)/(maxW-minW))*ph;
+  ctx.strokeStyle = "rgba(99,200,170,0.08)"; ctx.lineWidth = 1;
+  for (let i=0;i<5;i++){const y=pad.t+(i/4)*ph;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillStyle="#64748b";ctx.font="10px 'DM Sans'";ctx.textAlign="right";ctx.fillText(Math.round(maxW-(i/4)*(maxW-minW)),pad.l-6,y+4);}
+  ctx.textAlign="center";const step=Math.max(1,Math.floor(entries.length/6));
+  entries.forEach(([date],i)=>{if(i%step===0||i===entries.length-1){ctx.fillStyle="#64748b";ctx.font="10px 'DM Sans'";ctx.fillText(fmtDate(date),xS(i),H-8);}});
+  const gy=yS(goal);ctx.strokeStyle="#34d399";ctx.lineWidth=1;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(W-pad.r,gy);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle="#34d399";ctx.font="10px 'DM Sans'";ctx.textAlign="left";ctx.fillText("Goal",W-pad.r+2,gy+4);
+  ctx.strokeStyle="#63c8aa";ctx.lineWidth=2.5;ctx.lineJoin="round";ctx.beginPath();entries.forEach(([,d],i)=>{const x=xS(i),y=yS(Number(d.weight));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
+  entries.forEach(([,d],i)=>{ctx.beginPath();ctx.arc(xS(i),yS(Number(d.weight)),3,0,Math.PI*2);ctx.fillStyle="#63c8aa";ctx.fill();});
 }
 
 // ─── Actions ───
-function navDay(delta) {
-  state.selectedDate = shiftDate(state.selectedDate, delta);
-  render();
-}
+function navDay(delta) { state.selectedDate = shiftDate(state.selectedDate, delta); render(); }
 
 function toggleMeal(meal) {
   state.addingMeal = state.addingMeal === meal ? null : meal;
   render();
+  setTimeout(() => {
+    const el = document.getElementById('fi-name');
+    if (el) { el.addEventListener('input', () => handleAcInput(el)); el.addEventListener('keydown', handleAcKey); el.focus(); }
+  }, 50);
 }
 
 function addFood(meal) {
@@ -545,82 +1108,23 @@ function addFood(meal) {
   render();
 }
 
-function removeFood(id) {
-  const d = state.selectedDate;
-  state.foodLog[d] = (state.foodLog[d]||[]).filter(i => i.id !== id);
-  save("ft-foodlog", state.foodLog);
-  render();
-}
-
-function updateDaily(field, val) {
-  const d = state.selectedDate;
-  if (!state.dailyData[d]) state.dailyData[d] = {};
-  state.dailyData[d][field] = val;
-  save("ft-daily", state.dailyData);
-}
-
-function updateProfile(field, val) {
-  state.profile[field] = val;
-  save("ft-profile", state.profile);
-  render();
-}
-
+function removeFood(id) { const d = state.selectedDate; state.foodLog[d] = (state.foodLog[d]||[]).filter(i => i.id !== id); save("ft-foodlog", state.foodLog); render(); }
+function updateDaily(field, val) { const d = state.selectedDate; if (!state.dailyData[d]) state.dailyData[d] = {}; state.dailyData[d][field] = val; save("ft-daily", state.dailyData); }
+function updateProfile(field, val) { state.profile[field] = val; save("ft-profile", state.profile); render(); }
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-function downloadCSV(filename, csvContent) {
-  const blob = new Blob([csvContent], {type:'text/csv;charset=utf-8;'});
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(link.href);
+function downloadCSV(fn, csv) { const b = new Blob([csv],{type:'text/csv;charset=utf-8;'}); const l = document.createElement('a'); l.href = URL.createObjectURL(b); l.download = fn; l.click(); URL.revokeObjectURL(l.href); }
+function exportFoodLog() { const rows=[['Date','Meal','Food','Calories','Serving','Protein (g)','Carbs (g)','Fat (g)']]; Object.entries(state.foodLog).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,items])=>{items.forEach(i=>{rows.push([date,i.meal||'',i.name||'',i.calories||'',i.serving||'',i.protein||'',i.carbs||'',i.fat||'']);});}); downloadCSV(`fueltrack-food-${todayStr()}.csv`,rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')); }
+function exportDailyData() { const m=calcMetrics(state.profile); const rows=[['Date','Calories','Protein','Carbs','Fat','Target','Weight','Water','Alcohol','Notes']]; [...new Set([...Object.keys(state.foodLog),...Object.keys(state.dailyData)])].sort().forEach(d=>{const t=getDayTotals(d),dd=state.dailyData[d]||{};rows.push([d,t.calories,t.protein,t.carbs,t.fat,m.calorieTarget,dd.weight||'',dd.water||'',dd.alcohol||'',dd.notes||'']);}); downloadCSV(`fueltrack-daily-${todayStr()}.csv`,rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')); }
+function exportAll() { exportFoodLog(); setTimeout(exportDailyData, 300); }
+
+function bindEvents() {
+  const si = document.getElementById('foodsSearchInput');
+  if (si) { si.addEventListener('input', e => { state.foodsSearch = e.target.value; clearTimeout(si._t); si._t = setTimeout(render, 200); }); }
 }
 
-function exportFoodLog() {
-  const rows = [['Date','Meal','Food','Calories','Serving','Protein (g)','Carbs (g)','Fat (g)']];
-  Object.entries(state.foodLog).sort(([a],[b])=>a.localeCompare(b)).forEach(([date, items]) => {
-    items.forEach(i => {
-      rows.push([date, i.meal||'', i.name||'', i.calories||'', i.serving||'', i.protein||'', i.carbs||'', i.fat||'']);
-    });
-  });
-  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  downloadCSV(`fueltrack-food-log-${todayStr()}.csv`, csv);
-}
-
-function exportDailyData() {
-  const m = calcMetrics(state.profile);
-  const rows = [['Date','Calories','Protein (g)','Carbs (g)','Fat (g)','Target (cal)','Weight (lbs)','Water (oz)','Alcohol (drinks)','Notes']];
-  const allDates = [...new Set([...Object.keys(state.foodLog),...Object.keys(state.dailyData)])].sort();
-  allDates.forEach(date => {
-    const t = getDayTotals(date);
-    const dd = state.dailyData[date] || {};
-    rows.push([date, t.calories, t.protein, t.carbs, t.fat, m.calorieTarget, dd.weight||'', dd.water||'', dd.alcohol||'', dd.notes||'']);
-  });
-  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  downloadCSV(`fueltrack-daily-summary-${todayStr()}.csv`, csv);
-}
-
-function exportAll() {
-  exportFoodLog();
-  setTimeout(() => exportDailyData(), 300);
-}
-
-function bindEvents() {}
-
-// ─── Tab bar ───
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    state.tab = btn.dataset.tab;
-    render();
-  });
-});
-
-// ─── Service Worker ───
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-
-// ─── Init ───
+document.querySelectorAll(".tab-btn").forEach(btn => { btn.addEventListener("click", () => { state.tab = btn.dataset.tab; render(); }); });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 render();
 </script>
 </body>
